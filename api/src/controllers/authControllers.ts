@@ -6,7 +6,7 @@ import User from '../models/User';
 
 export const signup = async (req: Request, res: Response) => {
     try {
-        const { email, password, first_name, last_name, wallet_address } = req.body;
+        const { email, password, first_name, last_name, wallet_address, role } = req.body;
         console.log(req.body);
         // Check if user already exists
         const existingUser = await User.findOne({ email });
@@ -47,16 +47,21 @@ export const login = async (req: Request, res: Response) => {
       if (user && (await bcrypt.compare(password, user.password))) {
           // Exclude password field from user object
           const { password: userPassword, ...userWithoutPassword } = user.toObject();
+          console.log('Logged In', userWithoutPassword)
           res.json({ user: userWithoutPassword });
       } else {
+            console.log('Invalid email or password')
+
           res.status(401).json({ message: 'Invalid email or password' });
       }
     } catch (error) {
       if (error instanceof Error) {
           // Now TypeScript knows that error is an Error object
+          console.log(error.message)
           res.status(500).json({ message: 'Error logging in', error: error.message });
       } else {
           // If the caught error is not an Error object, handle it here
+          console.log("error")
           res.status(500).json({ message: 'Error logging in', error: 'Error logging in' });
       }
     }
