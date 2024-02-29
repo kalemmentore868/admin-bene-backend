@@ -9,7 +9,6 @@ export const getAllInvestments = async (req: Request, res: Response) => {
             path: 'user_id',
             select: '-password' // Exclude the password field
         });
-        console.log('Got investments', investments)
         res.json(investments);
     } catch (error) {
         if (error instanceof Error) {
@@ -81,7 +80,6 @@ export const createInvestment = async (req: Request, res: Response) => {
         setTimeout(async () => {
             try {
                 const updatedInvestment = await Investment.findByIdAndUpdate(savedInvestment._id, { status: 'Ready for Deposit' }, { new: true });
-                console.log(`Investment ${updatedInvestment?._id} updated to 'Ready for Deposit'`);
             } catch (updateError) {
                 console.error(`Error updating investment ${savedInvestment._id} to 'Ready for Deposit':`, updateError);
             }
@@ -98,3 +96,53 @@ export const createInvestment = async (req: Request, res: Response) => {
         }
     }
 };
+
+export const update = async (req: Request, res: Response) => {
+  const investmentId = req.params.id;
+  const fieldsToUpdate: {
+    initial_investment?: number;
+    total_return?: number;
+    imo_deposit_amount?: number;
+    createdAt?: Date;
+    status?: string;
+  } = {};
+
+  // Check each possible field to see if it was provided in the request body
+  const {
+    initial_investment,
+    total_return,
+    imo_deposit_amount,
+    createdAt,
+    status,
+  } = req.body;
+  if (initial_investment !== undefined)
+    fieldsToUpdate["initial_investment"] = initial_investment;
+  if (total_return !== undefined) fieldsToUpdate["total_return"] = total_return;
+  if (imo_deposit_amount !== undefined)
+    fieldsToUpdate["imo_deposit_amount"] = imo_deposit_amount;
+  if (createdAt !== undefined) fieldsToUpdate["createdAt"] = createdAt;
+  if (status !== undefined) fieldsToUpdate["status"] = status;
+
+  try {
+    const updatedInvestment = await Investment.findByIdAndUpdate(
+      investmentId,
+      { $set: fieldsToUpdate },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedInvestment) {
+      return res.status(404).json({ message: "Investment not found" });
+    }
+
+    res.json({ message: "Investment updated successfully", updatedInvestment });
+  } catch (error) {
+    if (error instanceof Error) {
+        console.log(error.message);
+        res.status(500).json({ message: 'Error Updating Investment', error: error.message });
+    } else {
+        console.log('An unknown error occurred');
+        res.status(500).json({ message: 'Error Updating Investment', error: 'An unknown error occurred' });
+    }
+}
+};
+  
