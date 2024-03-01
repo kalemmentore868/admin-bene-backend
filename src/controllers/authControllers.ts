@@ -1,6 +1,8 @@
-import { Request, Response } from 'express'
+import { Request, Response,NextFunction } from 'express'
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import User from '../models/User';
+require('dotenv').config();
 
 
 
@@ -39,30 +41,30 @@ export const signup = async (req: Request, res: Response) => {
     }
 };
 
+const SECRET_KEY = process.env.SECRET_KEY || ''; 
+
 export const login = async (req: Request, res: Response) => {
     try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ email });
-  
-      if (user && (await bcrypt.compare(password, user.password))) {
-          // Exclude password field from user object
-          const { password: userPassword, ...userWithoutPassword } = user.toObject();
-          console.log('Logged In', userWithoutPassword)
-          res.json({ user: userWithoutPassword });
-      } else {
-            console.log('Invalid email or password')
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
 
-          res.status(401).json({ message: 'Invalid email or password' });
-      }
+        if (user && (await bcrypt.compare(password, user.password))) {
+            const { password, ...userWithoutPassword } = user.toObject();
+
+            // Generate JWT
+            const token = jwt.sign(
+                { userId: userWithoutPassword._id, email: userWithoutPassword.email },
+                SECRET_KEY ,
+                { expiresIn: '10h' } // Token expires in 10 hours
+            );
+            res.json({ user: userWithoutPassword, token });
+        } else {
+            res.status(401).json({ message: 'Invalid email or password' });
+        }
     } catch (error) {
-      if (error instanceof Error) {
-          // Now TypeScript knows that error is an Error object
-          console.log(error.message)
-          res.status(500).json({ message: 'Error logging in', error: error.message });
-      } else {
-          // If the caught error is not an Error object, handle it here
-          console.log("error")
-          res.status(500).json({ message: 'Error logging in', error: 'Error logging in' });
-      }
+        console.log(error);
+        res.status(500).json({ message: 'Error logging in', error: (error as any).message });
     }
-  };
+};
+
+

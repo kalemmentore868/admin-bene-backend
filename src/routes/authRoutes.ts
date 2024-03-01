@@ -1,9 +1,11 @@
 import express from 'express';
 import * as authController from '../controllers/authControllers'
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-router.post('/signup', authController.signup);
+// Fix auth
+router.post('/signup', /*authenticateToken*/ authController.signup);
 
 router.post('/login', authController.login);
 

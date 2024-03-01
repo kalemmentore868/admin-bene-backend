@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Investment from '../models/Investment';
-import { startCronJobForInvestment } from '../cronJob';
 import User from '../models/User';
 
 export const getAllInvestments = async (req: Request, res: Response) => {

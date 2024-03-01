@@ -2,6 +2,7 @@ import express from 'express'
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import investmentRoutes from './routes/investmentsRoutes';
+import { authenticateToken } from './middleware/auth'
 import mongoose from 'mongoose';
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
@@ -19,7 +20,7 @@ app.use(express.json());
 
 app.use('/auth', authRoutes)
 app.use('/users', userRoutes);
-app.use('/investments', investmentRoutes)
+app.use('/investments', /*authenticateToken*/ investmentRoutes)
 
 const transporter = nodemailer.createTransport({
   host: "smtp.hostinger.com",
