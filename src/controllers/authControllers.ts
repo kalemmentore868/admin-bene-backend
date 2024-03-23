@@ -6,9 +6,8 @@ require("dotenv").config();
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { email, password, first_name, last_name, wallet_address, role } =
+    const { email, password, first_name, last_name, wallet_address, gender, role } =
       req.body;
-    console.log(req.body);
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -57,7 +56,6 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...userWithoutPassword } = user.toObject();
 
@@ -69,14 +67,13 @@ export const login = async (req: Request, res: Response) => {
         { expiresIn }
       );
 
-      const userObj = { ...userWithoutPassword, token };
       // Calculate expiration date
       const expirationDate = new Date();
       expirationDate.setHours(expirationDate.getHours() + 10); // Add 10 hours to the current time
-
-      console.log("Logged in and token generated");
+      console.log("Logged in", {...userWithoutPassword});
       res.json({
-        user: userObj,
+        data: {...userWithoutPassword},
+        expirationDate: expirationDate.getTime(), // Send expiry date back to the client
       });
     } else {
       console.error("invalid email or password");

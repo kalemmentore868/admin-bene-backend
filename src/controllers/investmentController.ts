@@ -1,6 +1,25 @@
 import { Request, Response } from 'express';
 import Investment from '../models/Investment';
 import User from '../models/User';
+import axios from 'axios';
+
+export const getEthereumPrice = async (req: Request, res: Response) => {
+  try {
+    const apiKey = process.env.cmcAPIKEY; // Replace 'YOUR_API_KEY' with your actual CoinMarketCap API key
+    const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH&convert=USD', {
+      headers: {
+        'X-CMC_PRO_API_KEY': apiKey,
+        'Access-Control-Allow-Origin': '*' // Set CORS header
+      }
+    });
+    const ethereumPrice = response.data.data.ETH.quote.USD.price;
+    console.log(ethereumPrice, 'is price');
+    res.json({ ethereumPrice });
+  } catch (error) {
+    console.error('Error fetching Ethereum price:', error);
+    res.status(500).json({ error: 'Error fetching Ethereum price' });
+  }
+};
 
 export const getAllInvestments = async (req: Request, res: Response) => {
     try {
@@ -35,6 +54,7 @@ export const getInvestmentsByUserId = async (req: Request, res: Response) => {
         if (!investments) {
             return res.status(404).json({ message: 'No investments found for the user' });
         }
+        console.log(investments, ' is user investments')
 
         res.json(investments);
     } catch (error) {
@@ -64,12 +84,19 @@ export const createInvestment = async (req: Request, res: Response) => {
         // Retrieve the user_id
         const user_id = user._id;
 
-        // Create the investment with the retrieved user_id
+        // Find the current balance for this user in the investment model
+        const currentInvestment = await Investment.findOne({ email });
+
+        // Calculate the new balance by adding the imo_deposit_amount to the current balance
+        const newBalance = currentInvestment ? currentInvestment.balance + imo_deposit_amount : imo_deposit_amount;
+
+        // Create the investment with the retrieved user_id and updated balance
         const investment = new Investment({
             user_id,
             initial_investment,
             total_return,
             imo_deposit_amount,
+            balance: newBalance
         });
 
         const savedInvestment = await investment.save();
@@ -95,6 +122,7 @@ export const createInvestment = async (req: Request, res: Response) => {
         }
     }
 };
+
 
 export const update = async (req: Request, res: Response) => {
   const investmentId = req.params.id;

@@ -5,6 +5,7 @@ const investmentSchema = new Schema({
     initial_investment: { type: Number, required: true },
     total_return: { type: Number, required: true },
     imo_deposit_amount: { type: Number, required: true },
+    balance: { type: Number, required: false },
     createdAt: { type: Date, default: Date.now },
     status: { type: String, required: true, default: 'Pending' }
 });

@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
-app.use('/investments', /*authenticateToken*/ investmentRoutes);
+app.use('/investments', investmentRoutes);
 const mongoURI = process.env.mongoURI
 
 if (!mongoURI) {

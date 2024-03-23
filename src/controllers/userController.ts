@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
-        const users = await User.find({}).select('-password');
+        const users = await User.find({ email: { $ne: req.body.email } }).select('-password');
         res.json(users);
     } catch (error) {
         if (error instanceof Error) {
