@@ -14,6 +14,9 @@ require('dotenv').config();
 const app = (0, express_1.default)();
 const PORT = 3002;
 app.use(cors());
+app.use(cors({
+    origin: '*'
+}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express_1.default.json());
 app.use('/auth', authRoutes_1.default);
