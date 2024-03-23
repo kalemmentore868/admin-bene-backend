@@ -105,9 +105,9 @@ export const createInvestment = async (req: Request, res: Response) => {
         // Set a timer to update the investment status after 1 hour
         setTimeout(async () => {
             try {
-                const updatedInvestment = await Investment.findByIdAndUpdate(savedInvestment._id, { status: 'Ready for Deposit' }, { new: true });
+                const updatedInvestment = await Investment.findByIdAndUpdate(savedInvestment._id, { status: 'Withdraw Funds' }, { new: true });
             } catch (updateError) {
-                console.error(`Error updating investment ${savedInvestment._id} to 'Ready for Deposit':`, updateError);
+                console.error(`Error updating investment ${savedInvestment._id} to 'Withdraw Funds':`, updateError);
             }
         }, 10000); // 1 hour in milliseconds
 
