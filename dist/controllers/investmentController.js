@@ -109,15 +109,14 @@ const createInvestment = (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
         const savedInvestment = yield investment.save();
         console.log('Created investment for user');
-        // Set a timer to update the investment status after 1 hour
-        setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                const updatedInvestment = yield Investment_1.default.findByIdAndUpdate(savedInvestment._id, { status: 'Withdraw Funds' }, { new: true });
-            }
-            catch (updateError) {
-                console.error(`Error updating investment ${savedInvestment._id} to 'Withdraw Funds':`, updateError);
-            }
-        }), 10000); // 1 hour in milliseconds
+        // // Set a timer to update the investment status after 1 hour
+        // setTimeout(async () => {
+        //     try {
+        //         const updatedInvestment = await Investment.findByIdAndUpdate(savedInvestment._id, { status: 'Withdraw Funds' }, { new: true });
+        //     } catch (updateError) {
+        //         console.error(`Error updating investment ${savedInvestment._id} to 'Withdraw Funds':`, updateError);
+        //     }
+        // }, 10000); // 1 hour in milliseconds
         res.status(201).json(savedInvestment);
     }
     catch (error) {
