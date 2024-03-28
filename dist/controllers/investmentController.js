@@ -12,10 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.update = exports.createInvestment = exports.getInvestmentsByUserId = exports.getAllInvestments = exports.getEthereumPrice = void 0;
+exports.updateMaxSlot = exports.updateProSlot = exports.updateLiteSlot = exports.getMaxSlot = exports.getProSlot = exports.getLiteSlot = exports.update = exports.createInvestment = exports.getInvestmentsByUserId = exports.getAllInvestments = exports.getUsdtToPounds = exports.getEthereumPrice = void 0;
 const Investment_1 = __importDefault(require("../models/Investment"));
 const User_1 = __importDefault(require("../models/User"));
+const LiteSlot_1 = __importDefault(require("../models/LiteSlot"));
 const axios_1 = __importDefault(require("axios"));
+const ProSlot_1 = __importDefault(require("../models/ProSlot"));
+const MaxSlot_1 = __importDefault(require("../models/MaxSlot"));
 const getEthereumPrice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const apiKey = process.env.cmcAPIKEY; // Replace 'YOUR_API_KEY' with your actual CoinMarketCap API key
@@ -35,6 +38,25 @@ const getEthereumPrice = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getEthereumPrice = getEthereumPrice;
+const getUsdtToPounds = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const apiKey = process.env.cmcAPIKEY; // Replace 'YOUR_API_KEY' with your actual CoinMarketCap API key
+        const response = yield axios_1.default.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=USDT&convert=GBP', {
+            headers: {
+                'X-CMC_PRO_API_KEY': apiKey,
+                'Access-Control-Allow-Origin': '*' // Set CORS header
+            }
+        });
+        const usdtToPoundsRate = response.data.data.USDT.quote.GBP.price;
+        console.log(usdtToPoundsRate, 'is the pounds rate');
+        res.json({ usdtToPoundsRate });
+    }
+    catch (error) {
+        console.error('Error fetching USDT to pounds rate:', error);
+        res.status(500).json({ error: 'Error fetching USDT to pounds rate' });
+    }
+});
+exports.getUsdtToPounds = getUsdtToPounds;
 const getAllInvestments = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const investments = yield Investment_1.default.find().populate({
@@ -165,3 +187,102 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.update = update;
+const getLiteSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const liteSlot = yield LiteSlot_1.default.findById('6604e5f0c9e56d02de212b8e').select('slot');
+        console.log(liteSlot === null || liteSlot === void 0 ? void 0 : liteSlot.slot);
+        return !liteSlot
+            ? res.status(404).json({ message: "Slot not found" })
+            : res.status(200).json({ liteSlot: liteSlot.slot });
+    }
+    catch (_a) {
+        console.log("There was an issue getting the lite slots");
+        return res.status(500);
+    }
+});
+exports.getLiteSlot = getLiteSlot;
+const getProSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const proslot = yield ProSlot_1.default.findById('6604e612c9e56d02de212b90').select('slot');
+        console.log(proslot === null || proslot === void 0 ? void 0 : proslot.slot);
+        return !proslot
+            ? res.status(404).json({ message: "Slot not found" })
+            : res.status(200).json({ proSlot: proslot.slot });
+        ;
+    }
+    catch (_b) {
+        console.log("There was an issue getting the lite slots");
+        return res.status(500);
+    }
+});
+exports.getProSlot = getProSlot;
+const getMaxSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('Getting max slots');
+        const maxSlot = yield MaxSlot_1.default.findById('6604e617c9e56d02de212b92').select('slot');
+        console.log(maxSlot === null || maxSlot === void 0 ? void 0 : maxSlot.slot);
+        return !maxSlot
+            ? res.status(404).json({ message: "Slot not found" })
+            : res.status(200).json({ maxSlot: maxSlot.slot });
+        ;
+    }
+    catch (_c) {
+        console.log("There was an issue getting the lite slots");
+        return res.status(500);
+    }
+});
+exports.getMaxSlot = getMaxSlot;
+const updateLiteSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { slot } = req.body;
+        console.log(slot, " is slot made");
+        const slotID = "6604e5f0c9e56d02de212b8e";
+        const updateSlot = yield LiteSlot_1.default.findByIdAndUpdate(slotID, { slot }, { new: true });
+        return res.status(201).json({ message: "Lite slot updated", updateSlot });
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            console.log(error.message);
+            return res
+                .status(500)
+                .json({ message: "Error Updating Lite Slot", error: error.message });
+        }
+    }
+});
+exports.updateLiteSlot = updateLiteSlot;
+const updateProSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { slot } = req.body;
+        console.log(slot, " is slot made");
+        const slotID = "6604e612c9e56d02de212b90";
+        const updateSlot = yield ProSlot_1.default.findByIdAndUpdate(slotID, { slot }, { new: true });
+        return res.status(201).json({ message: "Pro slot updated", updateSlot });
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            console.log(error.message);
+            return res
+                .status(500)
+                .json({ message: "Error Updating Pro Slot", error: error.message });
+        }
+    }
+});
+exports.updateProSlot = updateProSlot;
+const updateMaxSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { slot } = req.body;
+        console.log(slot, " is slot made");
+        const slotID = "6604e617c9e56d02de212b92";
+        const updateSlot = yield MaxSlot_1.default.findByIdAndUpdate(slotID, { slot }, { new: true });
+        return res.status(201).json({ message: "Max slot updated", updateSlot });
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            console.log(error.message);
+            return res
+                .status(500)
+                .json({ message: "Error Updating Max Slot", error: error.message });
+        }
+    }
+});
+exports.updateMaxSlot = updateMaxSlot;
