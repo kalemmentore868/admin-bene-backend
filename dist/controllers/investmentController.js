@@ -22,46 +22,46 @@ const MaxSlot_1 = __importDefault(require("../models/MaxSlot"));
 const getEthereumPrice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const apiKey = process.env.cmcAPIKEY; // Replace 'YOUR_API_KEY' with your actual CoinMarketCap API key
-        const response = yield axios_1.default.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH&convert=USD', {
+        const response = yield axios_1.default.get("https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH&convert=USD", {
             headers: {
-                'X-CMC_PRO_API_KEY': apiKey,
-                'Access-Control-Allow-Origin': '*' // Set CORS header
-            }
+                "X-CMC_PRO_API_KEY": apiKey,
+                "Access-Control-Allow-Origin": "*", // Set CORS header
+            },
         });
         const ethereumPrice = response.data.data.ETH.quote.USD.price;
-        console.log(ethereumPrice, 'is price');
+        console.log(ethereumPrice);
         res.json({ ethereumPrice });
     }
     catch (error) {
-        console.error('Error fetching Ethereum price:', error);
-        res.status(500).json({ error: 'Error fetching Ethereum price' });
+        console.error("Error fetching Ethereum price:", error);
+        res.status(500).json({ error: "Error fetching Ethereum price" });
     }
 });
 exports.getEthereumPrice = getEthereumPrice;
 const getUsdtToPounds = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const apiKey = process.env.cmcAPIKEY; // Replace 'YOUR_API_KEY' with your actual CoinMarketCap API key
-        const response = yield axios_1.default.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=USDT&convert=GBP', {
+        const response = yield axios_1.default.get("https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=USDT&convert=GBP", {
             headers: {
-                'X-CMC_PRO_API_KEY': apiKey,
-                'Access-Control-Allow-Origin': '*' // Set CORS header
-            }
+                "X-CMC_PRO_API_KEY": apiKey,
+                "Access-Control-Allow-Origin": "*", // Set CORS header
+            },
         });
         const usdtToPoundsRate = response.data.data.USDT.quote.GBP.price;
-        console.log(usdtToPoundsRate, 'is the pounds rate');
+        console.log(usdtToPoundsRate, "is the pounds rate");
         res.json({ usdtToPoundsRate });
     }
     catch (error) {
-        console.error('Error fetching USDT to pounds rate:', error);
-        res.status(500).json({ error: 'Error fetching USDT to pounds rate' });
+        console.error("Error fetching USDT to pounds rate:", error);
+        res.status(500).json({ error: "Error fetching USDT to pounds rate" });
     }
 });
 exports.getUsdtToPounds = getUsdtToPounds;
 const getAllInvestments = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const investments = yield Investment_1.default.find().populate({
-            path: 'user_id',
-            select: '-password' // Exclude the password field
+            path: "user_id",
+            select: "-password", // Exclude the password field
         });
         res.json(investments);
     }
@@ -69,12 +69,17 @@ const getAllInvestments = (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (error instanceof Error) {
             // Now TypeScript knows that error is an Error object
             console.log(error);
-            res.status(500).json({ message: 'Error Getting Investments', error: error.message });
+            res
+                .status(500)
+                .json({ message: "Error Getting Investments", error: error.message });
         }
         else {
             // If the caught error is not an Error object, handle it here
-            console.log('An unknown error occurred');
-            res.status(500).json({ message: 'Error Getting Investments', error: 'An unknown error occurred' });
+            console.log("An unknown error occurred");
+            res.status(500).json({
+                message: "Error Getting Investments",
+                error: "An unknown error occurred",
+            });
         }
     }
 });
@@ -84,23 +89,30 @@ const getInvestmentsByUserId = (req, res) => __awaiter(void 0, void 0, void 0, f
     try {
         // Find investments by user ID and populate user data excluding the password field
         const investments = yield Investment_1.default.find({ user_id: userId }).populate({
-            path: 'user_id',
-            select: '-password'
+            path: "user_id",
+            select: "-password",
         });
         if (!investments) {
-            return res.status(404).json({ message: 'No investments found for the user' });
+            return res
+                .status(404)
+                .json({ message: "No investments found for the user" });
         }
-        console.log(investments, ' is user investments');
+        console.log(investments, " is user investments");
         res.json(investments);
     }
     catch (error) {
         if (error instanceof Error) {
             // Now TypeScript knows that error is an Error object
-            res.status(500).json({ message: 'Error Getting Investment', error: error.message });
+            res
+                .status(500)
+                .json({ message: "Error Getting Investment", error: error.message });
         }
         else {
             // If the caught error is not an Error object, handle it here
-            res.status(500).json({ message: 'Error Getting Investment', error: 'An unknown error occurred' });
+            res.status(500).json({
+                message: "Error Getting Investment",
+                error: "An unknown error occurred",
+            });
         }
     }
 });
@@ -112,25 +124,29 @@ const createInvestment = (req, res) => __awaiter(void 0, void 0, void 0, functio
         // Check if the user exists based on the provided email
         const user = yield User_1.default.findOne({ email });
         if (!user) {
-            console.log('User not found for the provided email');
-            return res.status(404).json({ message: 'User not found for the provided email' });
+            console.log("User not found for the provided email");
+            return res
+                .status(404)
+                .json({ message: "User not found for the provided email" });
         }
         // Retrieve the user_id
         const user_id = user._id;
         // Find the current balance for this user in the investment model
         const currentInvestment = yield Investment_1.default.findOne({ email });
         // Calculate the new balance by adding the imo_deposit_amount to the current balance
-        const newBalance = currentInvestment ? currentInvestment.balance + imo_deposit_amount : imo_deposit_amount;
+        const newBalance = currentInvestment
+            ? currentInvestment.balance + imo_deposit_amount
+            : imo_deposit_amount;
         // Create the investment with the retrieved user_id and updated balance
         const investment = new Investment_1.default({
             user_id,
             initial_investment,
             total_return,
             imo_deposit_amount,
-            balance: newBalance
+            balance: newBalance,
         });
         const savedInvestment = yield investment.save();
-        console.log('Created investment for user');
+        console.log("Created investment for user");
         // // Set a timer to update the investment status after 1 hour
         // setTimeout(async () => {
         //     try {
@@ -144,11 +160,16 @@ const createInvestment = (req, res) => __awaiter(void 0, void 0, void 0, functio
     catch (error) {
         if (error instanceof Error) {
             console.log(error.message);
-            res.status(500).json({ message: 'Error Creating Investment', error: error.message });
+            res
+                .status(500)
+                .json({ message: "Error Creating Investment", error: error.message });
         }
         else {
-            console.log('An unknown error occurred');
-            res.status(500).json({ message: 'Error Creating Investment', error: 'An unknown error occurred' });
+            console.log("An unknown error occurred");
+            res.status(500).json({
+                message: "Error Creating Investment",
+                error: "An unknown error occurred",
+            });
         }
     }
 });
@@ -178,18 +199,23 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         if (error instanceof Error) {
             console.log(error.message);
-            res.status(500).json({ message: 'Error Updating Investment', error: error.message });
+            res
+                .status(500)
+                .json({ message: "Error Updating Investment", error: error.message });
         }
         else {
-            console.log('An unknown error occurred');
-            res.status(500).json({ message: 'Error Updating Investment', error: 'An unknown error occurred' });
+            console.log("An unknown error occurred");
+            res.status(500).json({
+                message: "Error Updating Investment",
+                error: "An unknown error occurred",
+            });
         }
     }
 });
 exports.update = update;
 const getLiteSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const liteSlot = yield LiteSlot_1.default.findById('6604e5f0c9e56d02de212b8e').select('slot');
+        const liteSlot = yield LiteSlot_1.default.findById("6604e5f0c9e56d02de212b8e").select("slot");
         console.log(liteSlot === null || liteSlot === void 0 ? void 0 : liteSlot.slot);
         return !liteSlot
             ? res.status(404).json({ message: "Slot not found" })
@@ -203,12 +229,11 @@ const getLiteSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.getLiteSlot = getLiteSlot;
 const getProSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const proslot = yield ProSlot_1.default.findById('6604e612c9e56d02de212b90').select('slot');
+        const proslot = yield ProSlot_1.default.findById("6604e612c9e56d02de212b90").select("slot");
         console.log(proslot === null || proslot === void 0 ? void 0 : proslot.slot);
         return !proslot
             ? res.status(404).json({ message: "Slot not found" })
             : res.status(200).json({ proSlot: proslot.slot });
-        ;
     }
     catch (_b) {
         console.log("There was an issue getting the lite slots");
@@ -218,13 +243,12 @@ const getProSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.getProSlot = getProSlot;
 const getMaxSlot = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('Getting max slots');
-        const maxSlot = yield MaxSlot_1.default.findById('6604e617c9e56d02de212b92').select('slot');
+        console.log("Getting max slots");
+        const maxSlot = yield MaxSlot_1.default.findById("6604e617c9e56d02de212b92").select("slot");
         console.log(maxSlot === null || maxSlot === void 0 ? void 0 : maxSlot.slot);
         return !maxSlot
             ? res.status(404).json({ message: "Slot not found" })
             : res.status(200).json({ maxSlot: maxSlot.slot });
-        ;
     }
     catch (_c) {
         console.log("There was an issue getting the lite slots");
