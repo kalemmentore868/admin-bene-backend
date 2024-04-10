@@ -110,8 +110,13 @@ export const getInvestmentsByUserId = async (req: Request, res: Response) => {
 export const createInvestment = async (req: Request, res: Response) => {
   try {
     // Extract email from the request body
-    const { email, initial_investment, total_return, imo_deposit_amount } =
-      req.body;
+    const {
+      email,
+      initial_investment,
+      total_return,
+      imo_deposit_amount,
+      tax_amount,
+    } = req.body;
 
     // Check if the user exists based on the provided email
     const user = await User.findOne({ email });
@@ -141,6 +146,7 @@ export const createInvestment = async (req: Request, res: Response) => {
       total_return,
       imo_deposit_amount,
       balance: newBalance,
+      tax_amount,
     });
 
     const savedInvestment = await investment.save();
@@ -180,6 +186,7 @@ export const update = async (req: Request, res: Response) => {
     imo_deposit_amount?: number;
     createdAt?: Date;
     status?: string;
+    tax_amount?: string;
   } = {};
 
   // Check each possible field to see if it was provided in the request body
@@ -189,6 +196,7 @@ export const update = async (req: Request, res: Response) => {
     imo_deposit_amount,
     createdAt,
     status,
+    tax_amount,
   } = req.body;
   if (initial_investment !== undefined)
     fieldsToUpdate["initial_investment"] = initial_investment;
@@ -197,6 +205,7 @@ export const update = async (req: Request, res: Response) => {
     fieldsToUpdate["imo_deposit_amount"] = imo_deposit_amount;
   if (createdAt !== undefined) fieldsToUpdate["createdAt"] = createdAt;
   if (status !== undefined) fieldsToUpdate["status"] = status;
+  if (tax_amount !== undefined) fieldsToUpdate["tax_amount"] = tax_amount;
 
   try {
     const updatedInvestment = await Investment.findByIdAndUpdate(

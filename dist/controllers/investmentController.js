@@ -120,7 +120,7 @@ exports.getInvestmentsByUserId = getInvestmentsByUserId;
 const createInvestment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Extract email from the request body
-        const { email, initial_investment, total_return, imo_deposit_amount } = req.body;
+        const { email, initial_investment, total_return, imo_deposit_amount, tax_amount, } = req.body;
         // Check if the user exists based on the provided email
         const user = yield User_1.default.findOne({ email });
         if (!user) {
@@ -144,6 +144,7 @@ const createInvestment = (req, res) => __awaiter(void 0, void 0, void 0, functio
             total_return,
             imo_deposit_amount,
             balance: newBalance,
+            tax_amount,
         });
         const savedInvestment = yield investment.save();
         console.log("Created investment for user");
@@ -178,7 +179,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const investmentId = req.params.id;
     const fieldsToUpdate = {};
     // Check each possible field to see if it was provided in the request body
-    const { initial_investment, total_return, imo_deposit_amount, createdAt, status, } = req.body;
+    const { initial_investment, total_return, imo_deposit_amount, createdAt, status, tax_amount, } = req.body;
     if (initial_investment !== undefined)
         fieldsToUpdate["initial_investment"] = initial_investment;
     if (total_return !== undefined)
@@ -189,6 +190,8 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         fieldsToUpdate["createdAt"] = createdAt;
     if (status !== undefined)
         fieldsToUpdate["status"] = status;
+    if (tax_amount !== undefined)
+        fieldsToUpdate["tax_amount"] = tax_amount;
     try {
         const updatedInvestment = yield Investment_1.default.findByIdAndUpdate(investmentId, { $set: fieldsToUpdate }, { new: true, runValidators: true });
         if (!updatedInvestment) {

@@ -24,15 +24,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const investmentSchema = new mongoose_1.Schema({
+const taxSchema = new mongoose_1.Schema({
     user_id: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    initial_investment: { type: Number, required: true },
-    total_return: { type: Number, required: true },
     tax_amount: { type: Number, required: true },
-    imo_deposit_amount: { type: Number, required: true },
-    balance: { type: Number, required: false },
-    createdAt: { type: Date, default: Date.now },
     status: { type: String, required: true, default: "Pending" },
+    createdAt: { type: Date, default: Date.now },
 });
-const Investment = mongoose_1.default.model("Investment", investmentSchema);
-exports.default = Investment;
+const Tax = mongoose_1.default.model("Tax", taxSchema);
+exports.default = Tax;
